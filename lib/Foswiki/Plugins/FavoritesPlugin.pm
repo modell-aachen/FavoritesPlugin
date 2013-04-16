@@ -10,8 +10,8 @@ use Foswiki::Func ();
 use Foswiki::Meta ();
 use Foswiki::Plugins ();
 
-our $VERSION = '0.9';
-our $RELEASE = '0.9';
+our $VERSION = '0.9.1';
+our $RELEASE = '0.9.1';
 our $SHORTDESCRIPTION = 'Allow users to bookmark topics/attachments within the wiki';
 our $NO_PREFS_IN_TOPIC = 1;
 
@@ -66,10 +66,10 @@ sub _FAVORITEBUTTON {
 
     my $targetWeb = $params->{web};
     my $targetTopic = $params->{topic};
-    my $redirect = $params->{redirectto} || "$targetWeb.$targetTopic";
     $targetWeb = $web unless defined $targetWeb;
     $targetWeb =~ s!\.!/!g; # SolrPlugin compatibility
     $targetTopic = $topic unless defined $targetTopic;
+    my $redirect = $params->{redirectto} || "$targetWeb.$targetTopic";
     my $file = $params->{file} || '';
 
     my $format = $params->{format} || '';
