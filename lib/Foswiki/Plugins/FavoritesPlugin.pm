@@ -5,6 +5,7 @@ package Foswiki::Plugins::FavoritesPlugin;
 use strict;
 use warnings;
 
+use Encode ();
 use Error qw( :try );
 use Foswiki::Func ();
 use Foswiki::Meta ();
