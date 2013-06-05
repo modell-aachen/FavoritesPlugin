@@ -225,8 +225,10 @@ sub _restUpdate {
 sub _moveFavoritesForUser {
     my ($userMeta, $moveInfo) = @_;
 
+    my $updated = 0;
     while (my ($k, $v) = each(%$moveInfo)) {
         next unless $userMeta->get('FAVORITE', $k);
+        $updated = 1;
         $userMeta->remove('FAVORITE', $k);
         my $data = {
             name => _internalName(@$v),
@@ -237,6 +239,7 @@ sub _moveFavoritesForUser {
         $data->{file} = $v->[2] if defined $v->[2];
         $userMeta->putKeyed('FAVORITE', $data);
     }
+    return unless $updated;
     _saveTopic($userMeta);
 }
 
