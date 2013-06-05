@@ -296,6 +296,7 @@ sub afterRenameHandler {
     # Step 2: apply to every user
     foreach my $user (Foswiki::Func::getTopicList($Foswiki::cfg{UsersWebName})) {
         my $home = _userTopic($user);
+        next unless defined $home; # not found or not readable
         _moveFavoritesForUser($home, $moveInfo);
     }
 }
