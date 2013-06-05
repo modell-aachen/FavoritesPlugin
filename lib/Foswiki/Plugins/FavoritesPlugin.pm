@@ -11,8 +11,8 @@ use Foswiki::Func ();
 use Foswiki::Meta ();
 use Foswiki::Plugins ();
 
-our $VERSION = '0.9.2';
-our $RELEASE = '0.9.2';
+our $VERSION = '0.9.3';
+our $RELEASE = '0.9.3';
 our $SHORTDESCRIPTION = 'Allow users to bookmark topics/attachments within the wiki';
 our $NO_PREFS_IN_TOPIC = 1;
 
