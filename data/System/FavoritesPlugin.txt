@@ -1,0 +1,72 @@
+%META:TOPICPARENT{name="Plugins"}%
+---+ !FavoritesPlugin
+
+%SHORTDESCRIPTION%
+
+This plugin implements a simple bookmarking system for topics and attachments.
+It stores bookmarks as META fields in the user's personal topic. The following
+things are implemented:
+
+   * =FAVORITEBUTTON= Macro to render a button to favorite/unfavorite a
+     topic/attachment, and corresponding REST handlers
+   * Rename handlers that update bookmarks when a topic or attachment is
+     renamed
+
+---++ =FAVORITEBUTTON= macro
+
+Renders a button or link that toggles "favoriteness" of a topic or attachment.
+
+|  *Attribute*  |  *Meaning*  |
+| =web= | Web the topic/attachment is in; defaults to current web. |
+| =topic= | The topic. |
+| =file= | The attachment. If not set, the button is for the topic itself. |
+| <code>active_<em>xyz</em></code> | Defines the replacement for the \
+    placeholder <code>$<em>xyz</em></code> used when the topic/attachment\
+    is currently favorited. You may use the normal placeholders pre-defined\
+    by the plugin within these definitions. |
+| <code>inactive_<em>xyz</em></code> | Same, but for topics/attachments\
+    currently _not_ favorited. |
+| =format= | What to render. The following placeholders are expanded:<ul>\
+    <li> *$web*, *$topic*, *$file*: you can probably guess these.</li>\
+    <li> *$name*: internal name for the bookmark that uniquely identifies\
+      it.</li>\
+    <li> *$formstart*, *$formend*: beginning and end of a form definition\
+      that, if inserted around something that submits it, will take care of\
+      toggling the "favoriteness" of the topic/attachment in question.</li>\
+    <li> *$url*: a URL that can be used as a link target to toggle the\
+      "favoriteness" of the topic/attachment in question.</li>\
+    </ul> |
+| =redirectto= | An alternative topic to redirect to after the button's\
+    action has completed; defaults to the topic the bookmark refers to. |
+
+Example (for use within the attachtables template):
+
+<verbatim class="tml">
+%FAVORITEBUTTON{
+  file="%A_FILE%"
+  active_suffix="active"
+  inactive_suffix="inactive"
+  active_label="%MAKETEXT{"Mark as favorite"}%"
+  inactive_label="%MAKETEXT{"Unmark as favorite"}%"
+  format="$formstart<button type=\"submit\">
+    <img src=\"%PUBURLPATH%/Myiconset/fav_$suffix\" alt=\"$label\">
+  </button>$formend"
+}%
+</verbatim>
+
+---++ Installation
+%$INSTALL_INSTRUCTIONS%
+
+---++ Plugin Info
+This plugin was sponsored by [[http://modell-aachen.de/][Modell Aachen GmbH]].
+
+|  Author: | Foswiki:Main.JanKrueger |
+|  Copyright: | &copy; 2013, Foswiki Contributors |
+|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
+|  Release: | %$RELEASE% |
+|  Version: | %$VERSION% |
+|  Change&nbsp;History: | <!-- versions below in reverse order -->&nbsp; |
+|  15 Apr 2013 (0.9) | Pre-release version |
+|  Home: | http://foswiki.org/Extensions/%TOPIC% |
+|  Support: | http://foswiki.org/Support/%TOPIC% |
+
