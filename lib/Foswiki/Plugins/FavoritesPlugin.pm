@@ -134,22 +134,30 @@ sub _FAVORITEBUTTON {
 sub _FAVORITELIST {
     my ($session, $params, $topic, $web, $meta) = @_;
 
-    my $home = _userTopic();
+    my $home;
+    my $user = Foswiki::Func::getWikiName($params->{user});
+    return '' unless Foswiki::Func::isAnAdmin() || $user eq Foswiki::Func::getWikiName();
+    $home = _userTopic($user);
     return '' unless defined $home;
 
     my $type = $params->{type} || 'topics';
     my $showTopics = ($type !~ /^files$/i);
     my $showFiles = ($type !~ /^topics$/i);
 
+    my $webfilter = $params->{web};
+
     my $format = $params->{format} || '   * [[$webtopic]]$n';
     my $sep = $params->{separator} || '';
+    my $header = $params->{header} || '';
+    my $footer = $params->{footer} || '';
     my $res = '';
 
     my $idx = 0;
     foreach my $fav ($home->find('FAVORITE')) {
         next if $fav->{file} && !$showFiles;
         next if !$fav->{file} && !$showTopics;
-        next if !Foswiki::Func::checkAccessPermission('VIEW', $session->{user}, undef, $fav->{topic}, $fav->{web});
+        next if $webfilter && $fav->{web} ne $webfilter;
+        next if !Foswiki::Func::checkAccessPermission('VIEW', $user, undef, $fav->{topic}, $fav->{web});
 
         $res .= $sep if $idx++;
 
@@ -165,7 +173,9 @@ sub _FAVORITELIST {
         $res .= $line;
     }
     return ($params->{default} || '') if $res eq '';
-    return $res;
+    return Foswiki::Func::decodeFormatTokens($header)
+        . $res
+        . Foswiki::Func::decodeFormatTokens($footer);
 }
 
 sub _outputREST {

@@ -11,6 +11,7 @@ things are implemented:
      topic/attachment, and corresponding REST handlers
    * Rename handlers that update bookmarks when a topic or attachment is
      renamed
+   * =FAVORITELIST= Macro to render a list of favorites.
 
 ---++ =FAVORITEBUTTON= macro
 
@@ -53,6 +54,19 @@ Example (for use within the attachtables template):
   </button>$formend"
 }%
 </verbatim>
+
+---++ =FAVORITELIST= macro
+
+Renders the list of favorited topics.
+
+|  *Attribute*  |  *Meaning*  |
+| =user= | Render favorites of this user, defaults to current user.%BR%%X% This only works for yourself or any user if you are an administrator. |
+| =web= | Only render favorites from this web. Leave blank to render favorites for all webs. |
+| =format= | Format string for the favorites.%BR%Supports the special escapes =$n=, =$web=, =$sweb= (use '.' as web separator), =$topic=, =$webtopic=, =$swebtopic=, =$file=. |
+| =header= | Will be prepended to the results (if there are any). Supports [[%SYSTEMWEB%.FormatTokens][format tokens]]. |
+| =header= | Will be appended to the results (if there are any). Supports [[%SYSTEMWEB%.FormatTokens][format tokens]]. |
+| =separator= | String to seperate each result. |
+| =default= | Will be printed if there are no results. |
 
 ---++ Installation
 %$INSTALL_INSTRUCTIONS%
