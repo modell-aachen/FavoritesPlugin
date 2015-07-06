@@ -64,7 +64,7 @@ Renders the list of favorited topics.
 | =web= | Only render favorites from this web. Leave blank to render favorites for all webs. |
 | =format= | Format string for the favorites.%BR%Supports the special escapes =$n=, =$web=, =$sweb= (use '.' as web separator), =$topic=, =$webtopic=, =$swebtopic=, =$file=. |
 | =header= | Will be prepended to the results (if there are any). Supports [[%SYSTEMWEB%.FormatTokens][format tokens]]. |
-| =header= | Will be appended to the results (if there are any). Supports [[%SYSTEMWEB%.FormatTokens][format tokens]]. |
+| =footer= | Will be appended to the results (if there are any). Supports [[%SYSTEMWEB%.FormatTokens][format tokens]]. |
 | =separator= | String to seperate each result. |
 | =default= | Will be printed if there are no results. |
 
