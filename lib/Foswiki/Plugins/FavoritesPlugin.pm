@@ -128,6 +128,11 @@ sub _FAVORITEBUTTON {
     $format =~ s!\$linkend!</a>!g;
     $format =~ s#\$url#%SCRIPTURLPATH{rest}%/FavoritesPlugin/update/$targetWeb/$targetTopic?action=$action;file=$file;redirect=$redirect#g;
 
+    my $pluginURL = '%PUBURLPATH%/%SYSTEMWEB%/FavoritesPlugin';
+    Foswiki::Func::addToZone( 'script', 'FAVORITESPLUGIN', <<SCRIPT, 'JQUERYPLUGIN::FOSWIKI' );
+<script type="text/javascript" src="$pluginURL/favorites.js"></script>
+SCRIPT
+
     return $format;
 }
 
