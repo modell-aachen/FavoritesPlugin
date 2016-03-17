@@ -30,6 +30,7 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler('FAVORITELIST', \&_FAVORITELIST);
     Foswiki::Func::registerRESTHandler('update', \&_restUpdate,
         authenticate => 1,
+        validate => 0,
         http_allow => 'GET,POST',
     );
 
