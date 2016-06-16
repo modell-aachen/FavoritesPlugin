@@ -25,6 +25,9 @@
       var redirect = payload.redirect;
       delete payload.redirect;
 
+      var removeOnUnfav = payload.removeOnUnfav;
+      delete payload.removeOnUnfav;
+
       $.blockUI();
       $.ajax({
         method: method,
@@ -35,6 +38,9 @@
         $div.load(viewUrl + '/' + redirect + ' form[action*="FavoritesPlugin/update"]', function(a,b,c) {
           var $in = $div.find('input[name="file"][value="' + payload.file + '"]');
           $form.replaceWith($in.parent());
+          if(removeOnUnfav && payload.action == "remove"){
+            $(removeOnUnfav).remove();
+          }
           $.unblockUI();
         })
       });

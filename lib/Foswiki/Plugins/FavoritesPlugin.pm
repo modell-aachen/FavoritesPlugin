@@ -30,6 +30,7 @@ sub initPlugin {
     Foswiki::Func::registerTagHandler('FAVORITELIST', \&_FAVORITELIST);
     Foswiki::Func::registerRESTHandler('update', \&_restUpdate,
         authenticate => 1,
+        validate => 0,
         http_allow => 'GET,POST',
     );
 
@@ -71,6 +72,7 @@ sub _FAVORITEBUTTON {
     $targetWeb =~ s!\.!/!g; # SolrPlugin compatibility
     $targetTopic = $topic unless defined $targetTopic;
     my $redirect = $params->{redirectto} || "$targetWeb.$targetTopic";
+    my $removeOnUnfav = $params->{removeOnUnfav} || "";
     my $file = $params->{file} || '';
 
     my $format = $params->{format} || '';
@@ -118,6 +120,7 @@ sub _FAVORITEBUTTON {
         <input type="hidden" name="action" value="$action" />
         <input type="hidden" name="redirect" value="$redirect" />
         <input type="hidden" name="file" value="$file" />
+        <input type ="hidden" name="removeOnUnfav" value="$removeOnUnfav" />
     ]g;
     $format =~ s/\$formend/<\/form><\/literal>/g;
     my $js = "jQuery(this).parents('form:first').submit();return false;";
