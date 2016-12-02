@@ -36,7 +36,7 @@
       }).error($.unblockUI).done(function() {
         var $div = $('<div />');
         $div.load(viewUrl + '/' + redirect + ' form[action*="FavoritesPlugin/update"]', function(a,b,c) {
-          var $in = $div.find('input[name="file"][value="' + payload.file + '"]');
+          var $in = $div.find('input[name="file"][value="' + payload.file + '"]+input[name="removeOnUnfav"][value="'+removeOnUnfav+'"]');
           $form.replaceWith($in.parent());
           if(removeOnUnfav && payload.action == "remove"){
             $(removeOnUnfav).remove();
