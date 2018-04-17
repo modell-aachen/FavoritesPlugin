@@ -103,6 +103,10 @@ sub _FAVORITEBUTTON {
     my $home = _userTopic();
     return '' unless defined $home;
     my $targetData = $home->get('FAVORITE', $name);
+    if(!defined($targetData)) {
+      my $fallback = $name =~ s#\.#\/#gr;
+      $targetData = $home->get('FAVORITE', $fallback);
+    }
     my $mode = defined($targetData) ? 'active' : 'inactive';
     my $action = ($mode eq 'active') ? 'remove' : 'add';
     $format =~ s/\$([a-z_]+)/
@@ -230,6 +234,10 @@ sub _restUpdate {
         $home->putKeyed('FAVORITE', $data);
     } else {
         $home->remove('FAVORITE', $name);
+        my $fallback = $name =~ s#\.#\/#gr;
+        if($home->get('FAVORITE', $fallback)){
+          $home->remove('FAVORITE', $fallback);
+        }
     }
     _saveTopic($home);
     if ($redirect) {
