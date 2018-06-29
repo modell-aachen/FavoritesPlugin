@@ -330,4 +330,35 @@ sub afterRenameHandler {
     }
 }
 
+sub maintenanceHandler{
+   Foswiki::Plugins::MaintenancePlugin::registerCheck("processescontentcontrib:mypagebookmarkswithslashes", {
+        name => "Bookmarks in \"MyPage\" with slashes",
+        description => "Bookmarks in \"MyPage\" (META:FAVORITE{...}) should not be like \"name=Web/Topic\" (Topics and Attachments)",
+        check => sub {
+            my @result = ();
+            my $iterate = Foswiki::Func::eachUser();
+            while($iterate->hasNext()){
+                my $wikiname = $iterate->next();
+                my $topic = "$Foswiki::cfg{DataDir}/Main/$wikiname.txt";
+                if(open my $fh, '<', $topic){
+                    foreach my $line(<$fh>){
+                        if($line =~ /\%META:FAVORITE.+topic="(.+?)".+web="(.+?)"/g){
+                                my $str = "name=\"$2/$1";
+                                if($line =~ /$str/){
+                                    push(@result, "Main.$wikiname") unless "Main.$wikiname" ~~ @result;
+                                }
+                        }
+                    }
+                    close $fh or push(@result,"Could not close file");
+                }
+            }
+            return { result => 0 } unless scalar @result;
+            return {
+                result => 1,
+                priority => $Foswiki::Plugins::MaintenancePlugin::WARN,
+                solution => "Please change \"name=Web/Topic\" to \"name=Web.Topic\", otherwise you can not delete the Bookmark<br/><ul>" . join("", map{ "<li>[[$_][$_]]</li>" } @result) . '</ul>'
+            };
+        }
+    });
+}
 1;
