@@ -335,7 +335,7 @@ sub maintenanceHandler{
         name => "Bookmarks in \"MyPage\" with slashes",
         description => "Bookmarks in \"MyPage\" (META:FAVORITE{...}) should not be like \"name=Web/Topic\" (Topics and Attachments)",
         check => sub {
-            my @result = ();
+            my @result;
             my $iterate = Foswiki::Func::eachUser();
             while($iterate->hasNext()){
                 my $wikiname = $iterate->next();
@@ -345,8 +345,9 @@ sub maintenanceHandler{
                     my $favoriteweb = $favorite->{'web'};
                     my $favoritetopic = $favorite->{'topic'};
                     my $favoritename = $favorite->{'name'};
-                    if($favoritename=~/$favoriteweb\/$favoritetopic/g){
-                        push(@result, "[[Main.$wikiname][Main.$wikiname]] => $favoritename");
+                    if($favoritename=~/$favoriteweb\/$favoritetopic/gx){
+                            my $result = "[[Main.$wikiname][Main.$wikiname]] => $favoritename";
+                            push(@result, $result) unless grep{$_ eq $result} @result;
                     }
                 }
             }
@@ -354,7 +355,7 @@ sub maintenanceHandler{
             return {
                 result => 1,
                 priority => $Foswiki::Plugins::MaintenancePlugin::WARN,
-                solution => "Please change \"name=Web/Topic\" to \"name=Web.Topic\" (BackEnd or Script), otherwise you can not delete the Bookmark<br/><ul>" . join("", map{ "<li>$_</li>" } @result) . '</ul>'
+                solution => "Please run script in tools directory <verbatim>sudo -u www-data ./fixBookmarks.pl -h </verbatim> otherwise you can not delete the Bookmark<br/><ul>" . join("", map{ "<li>$_</li>" } @result) . '</ul>'
             };
         }
     });
