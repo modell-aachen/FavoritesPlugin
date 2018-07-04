@@ -339,24 +339,22 @@ sub maintenanceHandler{
             my $iterate = Foswiki::Func::eachUser();
             while($iterate->hasNext()){
                 my $wikiname = $iterate->next();
-                my $topic = "$Foswiki::cfg{DataDir}/Main/$wikiname.txt";
-                if(open my $fh, '<', $topic){
-                    foreach my $line(<$fh>){
-                        if($line =~ /\%META:FAVORITE.+topic="(.+?)".+web="(.+?)"/g){
-                                my $str = "name=\"$2/$1";
-                                if($line =~ /$str/){
-                                    push(@result, "Main.$wikiname") unless "Main.$wikiname" ~~ @result;
-                                }
-                        }
+                next unless Foswiki::Func::topicExists("Main",$wikiname);
+                my ($meta) = Foswiki::Func::readTopic("Main",$wikiname);
+                foreach my $favorite ($meta->find('FAVORITE')){
+                    my $favoriteweb = $favorite->{'web'};
+                    my $favoritetopic = $favorite->{'topic'};
+                    my $favoritename = $favorite->{'name'};
+                    if($favoritename=~/$favoriteweb\/$favoritetopic/g){
+                        push(@result, "[[Main.$wikiname][Main.$wikiname]] => $favoritename");
                     }
-                    close $fh or push(@result,"Could not close file");
                 }
             }
             return { result => 0 } unless scalar @result;
             return {
                 result => 1,
                 priority => $Foswiki::Plugins::MaintenancePlugin::WARN,
-                solution => "Please change \"name=Web/Topic\" to \"name=Web.Topic\", otherwise you can not delete the Bookmark<br/><ul>" . join("", map{ "<li>[[$_][$_]]</li>" } @result) . '</ul>'
+                solution => "Please change \"name=Web/Topic\" to \"name=Web.Topic\" (BackEnd or Script), otherwise you can not delete the Bookmark<br/><ul>" . join("", map{ "<li>$_</li>" } @result) . '</ul>'
             };
         }
     });
