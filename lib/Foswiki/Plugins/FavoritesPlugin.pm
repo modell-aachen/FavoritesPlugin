@@ -104,8 +104,8 @@ sub _FAVORITEBUTTON {
     return '' unless defined $home;
     my $targetData = $home->get('FAVORITE', $name);
     if(!defined($targetData)) {
-      my $fallbackTopicsAndFiles = $name =~ s#\.([^.]*:?[^:]*$)#\/\1#rg;
-      $targetData = $home->get('FAVORITE', $fallbackTopicsAndFiles);
+      my $fallback = $name =~ s#\.#\/#gr;
+      $targetData = $home->get('FAVORITE', $fallback);
     }
     my $mode = defined($targetData) ? 'active' : 'inactive';
     my $action = ($mode eq 'active') ? 'remove' : 'add';
@@ -234,9 +234,9 @@ sub _restUpdate {
         $home->putKeyed('FAVORITE', $data);
     } else {
         $home->remove('FAVORITE', $name);
-        my $fallbackTopicsAndFiles = $name =~ s#\.([^.]*:?[^:]*$)#\/\1#rg;
-        if($home->get('FAVORITE', $fallbackTopicsAndFiles)){
-          $home->remove('FAVORITE', $fallbackTopicsAndFiles);
+        my $fallback = $name =~ s#\.#\/#gr;
+        if($home->get('FAVORITE', $fallback)){
+          $home->remove('FAVORITE', $fallback);
         }
     }
     _saveTopic($home);
