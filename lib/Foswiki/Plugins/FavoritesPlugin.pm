@@ -322,4 +322,34 @@ sub afterRenameHandler {
     }
 }
 
+sub maintenanceHandler{
+   Foswiki::Plugins::MaintenancePlugin::registerCheck("processescontentcontrib:mypagebookmarkswithslashes", {
+        name => "Bookmarks in \"MyPage\" with slashes",
+        description => "Bookmarks in \"MyPage\" (META:FAVORITE{...}) should not be like \"name=Web/Topic\" (Topics and Attachments)",
+        check => sub {
+            my @result;
+            my $iterate = Foswiki::Func::eachUser();
+            while($iterate->hasNext()){
+                my $wikiname = $iterate->next();
+                next unless Foswiki::Func::topicExists("Main",$wikiname);
+                my ($meta) = Foswiki::Func::readTopic("Main",$wikiname);
+                foreach my $favorite ($meta->find('FAVORITE')){
+                    my $favoriteweb = $favorite->{'web'};
+                    my $favoritetopic = $favorite->{'topic'};
+                    my $favoritename = $favorite->{'name'};
+                    if($favoritename=~/$favoriteweb\/$favoritetopic/gx){
+                            my $result = "[[Main.$wikiname][Main.$wikiname]] => $favoritename";
+                            push(@result, $result) unless grep{$_ eq $result} @result;
+                    }
+                }
+            }
+            return { result => 0 } unless scalar @result;
+            return {
+                result => 1,
+                priority => $Foswiki::Plugins::MaintenancePlugin::WARN,
+                solution => "Please run script in tools directory <verbatim>sudo -u www-data ./fixBookmarks.pl -h </verbatim> otherwise you can not delete the Bookmark<br/><ul>" . join("", map{ "<li>$_</li>" } @result) . '</ul>'
+            };
+        }
+    });
+}
 1;
