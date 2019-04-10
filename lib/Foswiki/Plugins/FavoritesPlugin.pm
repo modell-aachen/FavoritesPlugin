@@ -6,10 +6,12 @@ use strict;
 use warnings;
 
 use Encode ();
+use JSON;
 use Error qw( :try );
 use Foswiki::Func ();
 use Foswiki::Meta ();
 use Foswiki::Plugins ();
+use Foswiki::Plugins::TaskDaemonPlugin;
 
 our $VERSION = '0.9.3';
 our $RELEASE = "0.9";
@@ -293,33 +295,18 @@ sub afterRenameHandler {
         return if $pathInfo =~ m#^/KVPPlugin/changeState#;
     }
 
-    # Step 1: collect all potentially necessary changes
-    my $moveInfo = {};
-    if (!$oldTopic) {
-        # Moved an entire web
-        foreach my $topic (Foswiki::Func::getTopicList($newWeb)) {
-            _collectTopicResources($moveInfo, $oldWeb, $topic, $newWeb, $topic);
-        }
-    } elsif (!$oldAttachment) {
-        # Moved a single topic
-        # Ignore workflow-related moving
-        if (exists $Foswiki::cfg{Extensions}{KVPPlugin}{suffix}) {
-            my $suffix = $Foswiki::cfg{Extensions}{KVPPlugin}{suffix};
-            return if ($oldTopic =~ /\Q$suffix\E$/ || $newTopic =~ /\Q$suffix\E$/);
-        }
-        _collectTopicResources($moveInfo, $oldWeb, $oldTopic, $newWeb, $newTopic);
-    } else {
-        # Moved a single attachment
-        my $name = _internalName($oldWeb, $oldTopic, $oldAttachment);
-        $moveInfo->{$name} = [$newWeb, $newTopic, $newAttachment];
-    }
-
-    # Step 2: apply to every user
-    foreach my $user (Foswiki::Func::getTopicList($Foswiki::cfg{UsersWebName})) {
-        my $home = _userTopic($user);
-        next unless defined $home; # not found or not readable
-        _moveFavoritesForUser($home, $moveInfo);
-    }
+    my $json = to_json({
+        user => 'BaseUserMapping_Migration',
+        webtopic => "$newWeb.$newTopic",
+        callback => "Foswiki::Plugins::FavoritesPlugin",
+        oldWeb => $oldWeb,
+        oldTopic => $oldTopic,
+        oldAttachment => $oldAttachment,
+        newWeb => $newWeb,
+        newTopic => $newTopic,
+        newAttachment => $newAttachment,
+    });
+    Foswiki::Plugins::TaskDaemonPlugin::send($json, 'updateFavouritesOnRename', 'TaskDaemonPlugin', 0);
 }
 
 sub maintenanceHandler{
@@ -352,4 +339,48 @@ sub maintenanceHandler{
         }
     });
 }
+
+sub updateFavouritesOnRename {
+    my ($oldWeb, $oldTopic, $oldAttachment, $newWeb, $newTopic, $newAttachment) = @_;
+
+    # Step 1: collect all potentially necessary changes
+    my $moveInfo = {};
+    if (!$oldTopic) {
+        # Moved an entire web
+        foreach my $topic (Foswiki::Func::getTopicList($newWeb)) {
+            _collectTopicResources($moveInfo, $oldWeb, $topic, $newWeb, $topic);
+        }
+    } elsif (!$oldAttachment) {
+        # Moved a single topic
+        # Ignore workflow-related moving
+        if (exists $Foswiki::cfg{Extensions}{KVPPlugin}{suffix}) {
+            my $suffix = $Foswiki::cfg{Extensions}{KVPPlugin}{suffix};
+            return if ($oldTopic =~ /\Q$suffix\E$/ || $newTopic =~ /\Q$suffix\E$/);
+        }
+        _collectTopicResources($moveInfo, $oldWeb, $oldTopic, $newWeb, $newTopic);
+    } else {
+        # Moved a single attachment
+        my $name = _internalName($oldWeb, $oldTopic, $oldAttachment);
+        $moveInfo->{$name} = [$newWeb, $newTopic, $newAttachment];
+    }
+
+    # Step 2: apply to every user
+    foreach my $user (Foswiki::Func::getTopicList($Foswiki::cfg{UsersWebName})) {
+        my $home = _userTopic($user);
+        next unless defined $home; # not found or not readable
+        _moveFavoritesForUser($home, $moveInfo);
+    }
+}
+
+sub grinder {
+    my ($department, $session, $type, $json, $caches) = @_;
+
+    my $data = from_json($json);
+    if($type eq 'updateFavouritesOnRename') {
+        updateFavouritesOnRename($data->{oldWeb}, $data->{oldTopic}, $data->{oldAttachment}, $data->{newWeb}, $data->{newTopic}, $data->{newAttachment});
+    } else {
+        Foswiki::Func::writeWarning("Unknown message for grinder: $type");
+    }
+}
+
 1;
