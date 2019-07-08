@@ -210,7 +210,7 @@ sub _outputREST {
 sub _restUpdate {
     my ($session, $plugin, $verb, $response) = @_;
     my $req = $session->{request};
-    my $action = $req->param('action');
+    my $action = $req->param('action') || '';
     my $file = $req->param('file');
     my $redirect = $req->param('redirect');
 
